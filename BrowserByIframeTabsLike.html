@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Navegador Emulado</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+    }
+    #tabs {
+        list-style-type: none;
+        padding: 0;
+    }
+    .tab {
+        display: inline-block;
+        background-color: #f2f2f2;
+        padding: 5px 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px 5px 0 0;
+        cursor: pointer;
+    }
+    .tab.active {
+        background-color: #ddd;
+    }
+    .tab:hover {
+        background-color: #ddd;
+    }
+    .tab-content {
+        display: none;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-top: none;
+    }
+    .tab-content.active {
+        display: block;
+    }
+    .close-btn {
+        float: right;
+        cursor: pointer;
+    }
+    iframe {
+        width: 100%;
+        height: 500px;
+        border: none;
+    }
+</style>
+</head>
+<body>
+
+<form id="addTabForm">
+    <label for="urlInput">URL:</label>
+    <input type="text" id="urlInput" name="url">
+    <label for="titleInput">Título:</label>
+    <input type="text" id="titleInput" name="title">
+    <button type="submit">Agregar Tab</button>
+</form>
+
+<ul id="tabs">
+    <li class="tab active" data-url="https://www.example.com">Tab 1<span class="close-btn">×</span></li>
+</ul>
+
+<div id="tabContents">
+    <div class="tab-content active">
+        <h2>Contenido de Tab 1</h2>
+        <p>Este es el contenido de la primera pestaña.</p>
+    </div>
+</div>
+
+<script>
+    document.getElementById('addTabForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        var url = document.getElementById('urlInput').value.trim();
+        var title = document.getElementById('titleInput').value.trim();
+        
+        if (url && title) {
+            var newTabIndex = document.querySelectorAll('.tab').length + 1;
+        
+            var newTab = document.createElement('li');
+            newTab.classList.add('tab');
+            newTab.setAttribute('data-url', url);
+            newTab.innerHTML = title + '<span class="close-btn">×</span>';
+            document.getElementById('tabs').appendChild(newTab);
+            
+            var newTabContent = document.createElement('div');
+            newTabContent.classList.add('tab-content');
+            newTabContent.setAttribute('data-url', url);
+            newTabContent.innerHTML = '<h2>Contenido de ' + title + '</h2><iframe src="' + url + '"></iframe>';
+            document.getElementById('tabContents').appendChild(newTabContent);
+        } else {
+            alert('Por favor, introduce una URL y un título válidos.');
+        }
+        
+        document.getElementById('urlInput').value = '';
+        document.getElementById('titleInput').value = '';
+    });
+    
+    document.getElementById('tabs').addEventListener('click', function(event) {
+        var target = event.target;
+        if (target.classList.contains('tab')) {
+            var tabs = document.querySelectorAll('.tab');
+            tabs.forEach(function(tab) {
+                tab.classList.remove('active');
+            });
+            target.classList.add('active');
+            
+            var tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(function(content) {
+                content.classList.remove('active');
+            });
+            
+            var url = target.getAttribute('data-url');
+            if (url) {
+                var tabContent = document.querySelector('.tab-content[data-url="' + url + '"]');
+                if (tabContent) {
+                    tabContent.classList.add('active');
+                }
+            }
+        } else if (target.classList.contains('close-btn')) {
+            var tab = target.parentNode;
+            var tabContent = document.querySelector('.tab-content[data-url="' + tab.getAttribute('data-url') + '"]');
+            tab.parentNode.removeChild(tab);
+            tabContent.parentNode.removeChild(tabContent);
+        }
+    });
+</script>
+
+</body>
+</html>
